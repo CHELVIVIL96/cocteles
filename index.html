@@ -158,6 +158,8 @@
             align-items: center;
             margin: 14px 0 10px 0;
             gap: 15px;
+            /* SOLUCIÓN: Permite que los elementos bajen si chocan horizontalmente */
+            flex-wrap: wrap; 
         }
 
         h2 {
@@ -171,7 +173,8 @@
             white-space: normal;
             overflow: visible;
             text-overflow: clip;
-            flex-shrink: 1;
+            /* Permitimos que ocupe el máximo espacio disponible antes de forzar el wrap de la barra */
+            flex: 1 1 200px; 
             line-height: 1.1;
         }
 
@@ -180,6 +183,7 @@
             display: flex;
             flex-direction: column;
             width: 40%;
+            min-width: 140px; /* Asegura un tamaño mínimo legible cuando baja de línea */
             flex-shrink: 0;
             gap: 3px;
             font-size: 0.58rem;
@@ -187,6 +191,8 @@
             color: #daa520;
             font-weight: 600;
             text-transform: uppercase;
+            /* Margen automático a la derecha para que si baja, se alinee estéticamente */
+            margin-left: auto; 
         }
 
         .flavor-bar-labels {
@@ -242,25 +248,21 @@
             font-weight: 300;
             overflow-y: auto;
             padding-right: 6px;
-            /* Ajustado ligeramente para dar espacio al scroll */
         }
 
-        /* --- NUEVO: Estilización personalizada del Scrollbar (Card Front & Back) --- */
+        /* --- Estilización personalizada del Scrollbar (Card Front & Back) --- */
         .history::-webkit-scrollbar,
         .back-content::-webkit-scrollbar {
             width: 5px;
-            /* Más delgada y sutil */
         }
 
         .history::-webkit-scrollbar-track,
         .back-content::-webkit-scrollbar-track {
             background: transparent;
-            /* Fondo transparente para no romper el contenedor */
         }
 
         .history::-webkit-scrollbar-thumb,
         .back-content::-webkit-scrollbar-thumb {
-            /* Usamos la variable CSS --theme-color inyectada desde JS */
             background-color: var(--theme-color, #2ecc71);
             border-radius: 10px;
             opacity: 0.7;
@@ -328,7 +330,7 @@
         }
 
         /* =========================================================
-           RESPONSIVE - DISPOSITIVOS MÓVILES (PORTRAIT / VERTICAL)
+            RESPONSIVE - DISPOSITIVOS MÓVILES (PORTRAIT / VERTICAL)
         ========================================================= */
         @media (max-width: 700px) {
             .app-layout {
@@ -358,7 +360,7 @@
         }
 
         /* =========================================================
-           RESPONSIVE - CELULARES EN HORIZONTAL (LANDSCAPE)
+            RESPONSIVE - CELULARES EN HORIZONTAL (LANDSCAPE)
         ========================================================= */
         @media (max-height: 500px) {
             body {
@@ -448,7 +450,7 @@
                 name: "DAIQUIRI",
                 flavorScore: 70,
                 flavorProfile: "Cítrico, Herbal, Dulce, Refrescante.",
-                history: "El daiquirí a menudo se conoce como la bebida de 'aire acondicionado' de los bartenders. Sus raíces vienen de Cuba, y no hay ningún registro conocido de quién lo creó o cuándo se hizo por primera vez.Sin embargo, durante la Guerra Hispanoamericana, muchos estadounidenses estacionados en Cuba aprendieron sobre este cóctel y, inevitablemente, llegó a Estados Unidos. A principios de 1900, la bebida se introdujo en la Marina de los EE. UU. como otra forma de combatir el escorbuto, y ha sido un éxito desde entonces.",
+                history: "El daiquirí a menudo se conoce como la bebida de 'aire acondicionado' de los bartenders. Sus raíces vienen de Cuba, y no hay ningún registro conocido de quién lo creó o cuándo se hizo por primera vez.Sin embargo, durante la Guerra Hispanoamericana, many estadounidenses estacionados en Cuba aprendieron sobre este cóctel y, inevitablemente, llegó a Estados Unidos. A principios de 1900, la bebida se introdujo en la Marina de los EE. UU. como otra forma de combatir el escorbuto, y ha sido un éxito desde entonces.",
                 ingredients: [
                     { name: "Ron", qty: "2oz (60ml)" },
                     { name: "Jarabe simple", qty: "1oz (30ml)" },
@@ -622,7 +624,7 @@
                     "Decore con la guarnición y sirva."
                 ],
             },
-              {
+            {
                 id: "9",
                 category: "GINEBRA",
                 themeColor: "#4da6ff",
@@ -639,23 +641,23 @@
                 instructions: [
                     "Agregue los ingredientes al shaker.",
                     "Agregua hielo y mueve por 8-10 segundos.",
-                    "Sirva en el vaso.",
+                    "Sirve en el vaso.",
                     "Decore con la guarnición."
                 ],
             },
-             {
+            {
                 id: "10",
                 category: "GINEBRA",
                 themeColor: "#4da6ff",
                 name: "TOM COLLINS",
                 flavorScore: 65,
                 flavorProfile: "Limón, Fresco, Refrescante, Ligero.",
-                history: "El Tom Collins saltó a la fama por ser una forma de gastar una broma a tus amigos. Le decías a alguien que un caballero en el bar llamado Tom Collins estaba hablando muy mal de él, y que debería ir a hablar con él de inmediato. Así que tu amigo iba al bar, le preguntaba al barman si conocía a un tal Tom Collins, y el barman le decía 'sí, déjame traerlo'. Acto seguido, el barman le servía este cóctel. El New York Times lo llamó 'La Gran Broma de Tom Collins de 1874'. El cóctel se remonta a la década de 1790 y se cree que fue creado en Limmer's Old House, un popular hotel de Londres.",
+                history: "El Tom Collins saltó a la fama por ser una forma de gastar una broma a tus amigos. Le decías a alguien que un caballero en el bar llamado Tom Collins estaba hablando muy mal de él, y que debería ir a hablar con él de inmediato. Así que tu amigo iba al bar, le preguntaba al barman si conocía a un tal Tom Collins, y el barman le decía 'sí, déjame traerlo'. Acto secreto, el barman le servía este cóctel. El New York Times lo llamó 'La Gran Broma de Tom Collins de 1874'. El cóctel se remonta a la década de 1790 y se cree que fue creado en Limmer's Old House, un popular hotel de Londres.",
                 ingredients: [
                     { name: "Ginebra", qty: "2oz (60ml)" },
                     { name: "Jugo de limón", qty: ".75oz (22.5ml)" },
                     { name: "Jarape simple", qty: ".75oz (22.5ml)" },
-                     { name: "Soda", qty: "Hasta completar" },
+                    { name: "Soda", qty: "Hasta completar" },
                     { name: "Guarnición", qty: "Rodaja de limón y cereza" }
                 ],
                 instructions: [
