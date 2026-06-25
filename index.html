@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Dinámica de Cocteles - Títulos Multilinea</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Montserrat:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* --- Configuración General --- */
+        body {
+            background-color: #1a1a1a;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* --- Contenedor Principal (Panel Horizontal) --- */
+        .app-layout {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        /* --- Menú Lateral / Índice Clickeable --- */
+        .sidebar-index {
+            width: 220px;
+            flex-shrink: 0;
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border: 2px solid #daa520;
+        }
+
+        .category-group {
+            margin-bottom: 20px;
+        }
+
+        .category-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .cocktail-item {
+            font-size: 0.9rem;
+            color: #ddd;
+            padding: 6px 10px;
+            margin: 4px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 400;
+        }
+
+        .cocktail-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            padding-left: 14px;
+        }
+
+        .cocktail-item.active {
+            font-weight: 700;
+            color: #1a1a1a !important;
+        }
+
+        /* --- Contenedor de la Tarjeta --- */
+        .card-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- Contenedor 3D Adaptable --- */
+        .card-container {
+            width: 100%;
+            max-width: 460px;
+            height: 310px;
+            perspective: 1200px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: left;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-container.is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* --- Estilos de las Caras --- */
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            box-sizing: border-box;
+            padding: 20px;
+            color: #ffffff;
+            background-color: #1a1a1a;
+            border: 4px solid #2ecc71;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.4s ease;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: #141414;
+        }
+
+        /* --- Encabezado --- */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 6px;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: #2ecc71;
+            font-weight: 700;
+            transition: color 0.4s ease;
+        }
+
+        /* --- Fila del Título y la Barra --- */
+        .title-bar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 14px 0 10px 0;
+            gap: 15px;
+        }
+
+        h2 {
+            font-family: 'Rye', serif;
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            flex-shrink: 1;
+            line-height: 1.1;
+        }
+
+        /* --- Barra de Sabor --- */
+        .flavor-bar-container {
+            display: flex;
+            flex-direction: column;
+            width: 40%;
+            flex-shrink: 0;
+            gap: 3px;
+            font-size: 0.58rem;
+            letter-spacing: 1px;
+            color: #daa520;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .flavor-bar-labels {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .flavor-bar {
+            position: relative;
+            height: 9px;
+            border-radius: 4px;
+            background: linear-gradient(to right,
+                    #1a8c44 0%, #1a8c44 25%,
+                    #7ca844 25%, #7ca844 50%,
+                    #c8443e 50%, #c8443e 75%,
+                    #6c246c 75%, #6c246c 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .flavor-bar-marker {
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 6px;
+            height: 9px;
+            background-color: #ffd700;
+            border: 1px solid #daa520;
+            transform: translateX(-50%);
+            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 4px rgba(218, 165, 32, 0.8);
+        }
+
+        /* --- Información --- */
+        .flavor-profile {
+            font-size: 0.78rem;
+            color: #ddd;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .flavor-profile strong,
+        .column h3 {
+            color: #2ecc71;
+            font-weight: 700;
+            transition: color 0.4s ease;
+        }
+
+        .history {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #b3b3b3;
+            text-align: justify;
+            font-weight: 300;
+            overflow-y: auto;
+            padding-right: 6px;
+            /* Ajustado ligeramente para dar espacio al scroll */
+        }
+
+        /* --- NUEVO: Estilización personalizada del Scrollbar (Card Front & Back) --- */
+        .history::-webkit-scrollbar,
+        .back-content::-webkit-scrollbar {
+            width: 5px;
+            /* Más delgada y sutil */
+        }
+
+        .history::-webkit-scrollbar-track,
+        .back-content::-webkit-scrollbar-track {
+            background: transparent;
+            /* Fondo transparente para no romper el contenedor */
+        }
+
+        .history::-webkit-scrollbar-thumb,
+        .back-content::-webkit-scrollbar-thumb {
+            /* Usamos la variable CSS --theme-color inyectada desde JS */
+            background-color: var(--theme-color, #2ecc71);
+            border-radius: 10px;
+            opacity: 0.7;
+        }
+
+        .history::-webkit-scrollbar-thumb:hover,
+        .back-content::-webkit-scrollbar-thumb:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Compatibilidad para Firefox */
+        .history,
+        .back-content {
+            scrollbar-width: thin;
+            scrollbar-color: var(--theme-color, #2ecc71) transparent;
+        }
+
+        /* --- Parte Trasera (2 columnas) --- */
+        .back-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 12px;
+            flex-grow: 1;
+            margin-top: 14px;
+            font-size: 0.7rem;
+            overflow-y: auto;
+            padding-bottom: 25px;
+        }
+
+        .column h3 {
+            font-size: 0.75rem;
+            margin-top: 0;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .column ul li {
+            margin-bottom: 5px;
+            color: #eee;
+        }
+
+        .column ul li span {
+            display: block;
+            color: #888;
+            font-size: 0.65rem;
+        }
+
+        .instructions-list {
+            padding-left: 12px;
+            margin: 0;
+            color: #eee;
+        }
+
+        .instructions-list li {
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        /* =========================================================
+           RESPONSIVE - DISPOSITIVOS MÓVILES (PORTRAIT / VERTICAL)
+        ========================================================= */
+        @media (max-width: 700px) {
+            .app-layout {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+            }
+
+            .sidebar-index {
+                width: 92vw;
+                max-width: 460px;
+                box-sizing: border-box;
+                padding: 12px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 15px;
+                justify-content: space-around;
+            }
+
+            .category-group {
+                margin-bottom: 0;
+            }
+
+            .card-container {
+                width: 92vw;
+            }
+        }
+
+        /* =========================================================
+           RESPONSIVE - CELULARES EN HORIZONTAL (LANDSCAPE)
+        ========================================================= */
+        @media (max-height: 500px) {
+            body {
+                padding: 10px;
+            }
+
+            .app-layout {
+                gap: 20px;
+            }
+
+            .sidebar-index {
+                width: 160px;
+                padding: 12px;
+            }
+
+            .card-container {
+                height: 200px;
+                max-width: 520px;
+            }
+
+            .card-front,
+            .card-back {
+                padding: 12px;
+                border-width: 3px;
+            }
+
+            .title-bar-row {
+                margin: 6px 0 4px 0;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .flavor-profile {
+                font-size: 0.7rem;
+                margin-bottom: 5px;
+            }
+
+            .history {
+                font-size: 0.68rem;
+                line-height: 1.3;
+            }
+
+            .back-content {
+                margin-top: 5px;
+                gap: 10px;
+                padding-bottom: 15px;
+            }
+
+            .column h3 {
+                font-size: 0.7rem;
+                margin-bottom: 3px;
+            }
+
+            .flavor-bar-container {
+                font-size: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <div class="sidebar-index" id="sidebarIndex"></div>
+
+        <div class="card-area">
+            <div class="card-container" id="cardContainer">
+                <div class="card-inner" id="cardInner">
+                    <div class="card-front" id="cardFront"></div>
+                    <div class="card-back" id="cardBack"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Base de datos JSON
+        const cocktailData = [
+            {
+                id: "1",
+                category: "RON",
+                themeColor: "#CC962E",
+                name: "DAIQUIRI",
+                flavorScore: 70,
+                flavorProfile: "Cítrico, Herbal, Dulce, Refrescante.",
+                history: "El daiquirí a menudo se conoce como la bebida de 'aire acondicionado' de los bartenders. Sus raíces vienen de Cuba, y no hay ningún registro conocido de quién lo creó o cuándo se hizo por primera vez.Sin embargo, durante la Guerra Hispanoamericana, muchos estadounidenses estacionados en Cuba aprendieron sobre este cóctel y, inevitablemente, llegó a Estados Unidos. A principios de 1900, la bebida se introdujo en la Marina de los EE. UU. como otra forma de combatir el escorbuto, y ha sido un éxito desde entonces.",
+                ingredients: [
+                    { name: "Ron", qty: "2oz (60ml)" },
+                    { name: "Jarabe simple", qty: "1oz (30ml)" },
+                    { name: "Jugo de limón", qty: "1oz (30ml)" },
+                    { name: "Guarnición", qty: "Rodaja de limón" },
+                ],
+                instructions: [
+                    "Pon todos los ingredientes en el shaker.",
+                    "Agrega hielo y mueve por 8-10 segundos.",
+                    "Sirve en el vaso",
+                    "Decora con la guarnición"
+                ],
+            },
+            {
+                id: "2",
+                category: "RON",
+                themeColor: "#CC962E",
+                name: "PIÑA COLADA",
+                flavorScore: 40,
+                flavorProfile: "Piña, Coco, Cremoso.",
+                history: "La creación de la Piña Colada se le atribuye a Ramón 'Monchito' Pérez en el Caribe Hilton de San Juan, Puerto Rico, en 1954. Sin embargo, la mezcla de piña, cocos y ron se venía haciendo desde muchos años antes. Conocida principalmente por las líneas de cruceros y los cócteles de vacaciones, la Piña Colada es también la bebida nacional de Puerto Rico. Este sencillo cóctel de tres ingredientes se ha convertido en un favorito para el clima cálido en todo el mundo.",
+                ingredients: [
+                    { name: "Ron", qty: "2oz (60ml)" },
+                    { name: "Crema de coco", qty: "1.5oz (45ml)" },
+                    { name: "Jugo de piña", qty: "2oz (60ml)" },
+                    { name: "Guarnición", qty: "Rodaja de piña y cereza" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al vaso.",
+                    "Rellene con hielo.",
+                    "Pon el hielo y los ingredientes en la licuadora.",
+                    "Licúa por 8-12 segundos.",
+                    "Sirve en el vaso.",
+                    "Decora con la guarnición."
+                ],
+            },
+            {
+                id: "3",
+                category: "RON",
+                themeColor: "#CC962E",
+                name: "PAIN KILLER",
+                flavorScore: 35,
+                flavorProfile: "Cremoso, Piña, Nuez moscada, Coco.",
+                history: "El Pain killer fue creado en la década de 1970 por Daphne Henderson en el Soggy Dollar Bar, en las Islas Vírgenes. El bar es un paraíso para los marineros y se llama así porque sus clientes tienen que abandonar sus veleros y llegar a nado a la costa para acceder al bar. Más tarde, Pusser's Rum patentó el nombre del cóctel, y debe utilizarse en todos los Painkillers. Si no tienes a mano, puedes usar cualquier ron añejo y sabrá genial, pero ¡ya no estarás bebiendo un Painkiller! (guiño, guiño).",
+                ingredients: [
+                    { name: "Ron", qty: "2.5oz (75ml)" },
+                    { name: "Crema de coco", qty: "1oz (30ml)" },
+                    { name: "Jugo de piña", qty: "1.5oz (45ml)" },
+                    { name: "Jugo de naranja", qty: ".5oz (15ml)" },
+                    { name: "Guarnición", qty: "Rodaja de piña y Nuez picada" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al shaker.",
+                    "Agregua hielo y mueve por 8-10 segundos.",
+                    "Pon el hielo en el vaso",
+                    "Sirve en el vaso.",
+                    "Decora con la guarnición."
+                ],
+            },
+            {
+                id: "4",
+                category: "RON",
+                themeColor: "#CC962E",
+                name: "MOJITO",
+                flavorScore: 40,
+                flavorProfile: "Mentolado, Cítrico, Dulce, Fresco, Ligero.",
+                history: "El Mojito es la bebida oficial de Cuba y algunos creen que inicialmente se preparaba con aguardiente cubano. Luego, en la década de 1500, Cuba fue invadida por piratas, quienes usaban el cóctel como ayuda medicinal para combatir el escorbuto, pero por supuesto gregando ron a la mezcla. El cóctel ganó popularidad en La Bodeguita por ser uno de los cócteles favoritos de Ernest Hemingway. Ha aparecido en películas de James Bond y ahora es un cóctel icónico.",
+                ingredients: [
+                    { name: "Ron", qty: "2oz (60ml)" },
+                    { name: "jugo de limón", qty: "2oz (60ml)" },
+                    { name: "Jarabe simple", qty: "2oz (60ml)" },
+                    { name: "Hojas de hierba buena", qty: "8-10" },
+                    { name: "Soda", qty: "Completar el vaso" },
+                    { name: "Guarnición", qty: "Rodaja de limón y hojas de hierba buena" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al vaso.",
+                    "Golpee las hojas de hierba buena con la mano",
+                    "Gentilmente machaque las hojas de hierba buena con el resto de ingredientes.",
+                    "Agregue hielo al vaso y sirva.",
+                    "Rellene el vaso con soda.",
+                    "Decora con la guarnición."
+                ],
+            },
+            {
+                id: "5",
+                category: "RON",
+                themeColor: "#CC962E",
+                name: "CUBA LIBRE",
+                flavorScore: 35,
+                flavorProfile: "Ron, Cola, Limón.",
+                history: "Un cóctel simple con una historia poderosa. La bebida fue creada en 1898 justo después de la guerra hispano-estadounidense en Cuba. 'Cuba Libre' era el grito de guerra que significaba 'Free Cuba'. La bebida del día en Cuba era un trago de ron con un toque de limón. Después de la guerra hubo una gran llegada de importaciones de EE. UU., incluyendo Coca Cola. Así que, un día alguien decidió probar el ron y el toque de limón en su Coca Cola, y se creó la icónica bebida. ¡Sin embargo, la versión de hoy está libre de cocaína, por supuesto!.",
+                ingredients: [
+                    { name: "Ron", qty: "2oz (60ml)" },
+                    { name: "jugo de limón", qty: ".5oz (15ml)" },
+                    { name: "Cola", qty: "Completar el vaso" },
+                    { name: "Guarnición", qty: "Rodaja de limón" }
+                ],
+                instructions: [
+                    "Agregue hielo al vaso.",
+                    "Agregue el ron y el limón al vaso.",
+                    "Completar con cola.",
+                    "Mezcle con una cuchara.",
+                    "Decora con la guarnición."
+                ],
+            },
+            {
+                id: "6",
+                category: "TEQUILA",
+                themeColor: "#2ecc36",
+                name: "MARGARITA",
+                flavorScore: 75,
+                flavorProfile: "Agave, Cítrico, Dulce, Naranja, Resfrescante.",
+                history: "La Margarita es uno de los cócteles más conocidos en el mundo, y muchas personas intentan atribuirse el mérito de la creación de este icónico cóctel. La historia más antigua cuenta que fue creado en 1938 por Carlos 'Danny' Herrera en su restaurante Rancho La Gloria, cerca de Tijuana. Él afirmó que lo creó para una clienta exigente que decía ser alérgica a todo el alcohol excepto al tequila, pero a ella no le gustaba beber el destilado puro. Herrera resolvió el problema modificando el típico trago de tequila y utilizó sal y limas para crear un cóctel atractivo.",
+                ingredients: [
+                    { name: "Tequila", qty: "2oz (60ml)" },
+                    { name: "Triple Sec", qty: "1oz (30ml)" },
+                    { name: "Jugo de limón", qty: "1oz (30ml)" },
+                    { name: "Jarabe simple", qty: ".25oz (7.5ml)" },
+                    { name: "Guarnición", qty: "Rodaja de limón" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al shaker.",
+                    "Agregua hielo y mueve por 8-10 segundos.",
+                    "Michelar el vaso con sal y limón.",
+                    "Agregue hielo al vaso",
+                    "Sirve en el vaso.",
+                ],
+            },
+            {
+                id: "7",
+                category: "TEQUILA",
+                themeColor: "#2ecc36",
+                name: "TEQUILA SUNRISE",
+                flavorScore: 35,
+                flavorProfile: "Naranja, Dulce, Agave, Granadina.",
+                history: "El Tequila Sunrise que ves hoy en día está muy lejos del original creado a finales de los años 30. Se originó a partir de un cóctel que contenía crema de cassis y jugo de lima. Pero la versión actual dio un giro y ahora utiliza jugo de naranja y granadina. El Tequila Sunrise era el cóctel favorito de la legendaria banda de rock The Rolling Stones, y lo pedían a donde quiera que iban.",
+                ingredients: [
+                    { name: "Tequila", qty: "2oz (60ml)" },
+                    { name: "Jugo de naranja", qty: "4oz (120ml)" },
+                    { name: "Granadina", qty: ".25oz (7.5ml)" },
+                    { name: "Guarnición", qty: "Rodaja de naranja" }
+                ],
+                instructions: [
+                    "Agregue el tequila y el jugo de naranja al shaker.",
+                    "Agregua hielo y mueve por 8-10 segundos.",
+                    "Agregue granadina al fondo del vaso.",
+                    "Agregue hielo al vaso y sirva",
+                    "Mezcle gentilmente con cuchara.",
+                    "Decora con la guarnición."
+                ],
+            },
+            {
+                id: "8",
+                category: "GINEBRA",
+                themeColor: "#4da6ff",
+                name: "GIN TONIC",
+                flavorScore: 65,
+                flavorProfile: "Refrescante, Cítrico, Herbal, Seco.",
+                history: "El Gin Tonic tiene sus orígenes en la India colonial británica durante el siglo XIX. La quinina, ingrediente principal del agua tónica, era utilizada para prevenir la malaria. Los soldados británicos comenzaron a mezclarla con ginebra para mejorar su sabor, dando origen a uno de los cócteles más populares y consumidos del mundo.",
+                ingredients: [
+                    { name: "Ginebra", qty: "2oz (60ml)" },
+                    { name: "Agua tónica", qty: "4oz (120ml)" },
+                    { name: "Guarnición", qty: "Rodaja de limón" }
+                ],
+                instructions: [
+                    "Agregue hielo al vaso.",
+                    "Agregue la ginebra sobre el hielo.",
+                    "Vierta lentamente el agua tónica para conservar la carbonatación.",
+                    "Mezcle suavemente con una cuchara.",
+                    "Decore con la guarnición y sirva."
+                ],
+            },
+              {
+                id: "9",
+                category: "GINEBRA",
+                themeColor: "#4da6ff",
+                name: "GIN GIMLET",
+                flavorScore: 65,
+                flavorProfile: "Dulce, Cítrico, Herbal.",
+                history: "El Gin Gimlet fue creado con el único propósito de convencer a los marineros de consumir más lima para ayudar a combatir el escorbuto. Se rumorea que el nombre se debe al contraalmirante Sir Thomas Desmond Gimlette, quien entre 1879 y 1913 sirvió ginebra de alta graduación (navy strength) con cordial de lima de Rose como medicina. Los marineros consumían esta 'medicina' tan a menudo que pronto se les conocería como 'Limeys'.",
+                ingredients: [
+                    { name: "Ginebra", qty: "2oz (60ml)" },
+                    { name: "Jugo de limón", qty: ".75oz (22.5ml)" },
+                    { name: "Jarape simple", qty: ".75oz (22.5ml)" },
+                    { name: "Guarnición", qty: "Rodaja de limón" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al shaker.",
+                    "Agregua hielo y mueve por 8-10 segundos.",
+                    "Sirva en el vaso.",
+                    "Decore con la guarnición."
+                ],
+            },
+             {
+                id: "10",
+                category: "GINEBRA",
+                themeColor: "#4da6ff",
+                name: "TOM COLLINS",
+                flavorScore: 65,
+                flavorProfile: "Limón, Fresco, Refrescante, Ligero.",
+                history: "El Tom Collins saltó a la fama por ser una forma de gastar una broma a tus amigos. Le decías a alguien que un caballero en el bar llamado Tom Collins estaba hablando muy mal de él, y que debería ir a hablar con él de inmediato. Así que tu amigo iba al bar, le preguntaba al barman si conocía a un tal Tom Collins, y el barman le decía 'sí, déjame traerlo'. Acto seguido, el barman le servía este cóctel. El New York Times lo llamó 'La Gran Broma de Tom Collins de 1874'. El cóctel se remonta a la década de 1790 y se cree que fue creado en Limmer's Old House, un popular hotel de Londres.",
+                ingredients: [
+                    { name: "Ginebra", qty: "2oz (60ml)" },
+                    { name: "Jugo de limón", qty: ".75oz (22.5ml)" },
+                    { name: "Jarape simple", qty: ".75oz (22.5ml)" },
+                     { name: "Soda", qty: "Hasta completar" },
+                    { name: "Guarnición", qty: "Rodaja de limón y cereza" }
+                ],
+                instructions: [
+                    "Agregue los ingredientes al shaker (excepto la soda).",
+                    "Agregua hielo y mueve por 8-10 segundos.",
+                    "Agregue hielo al vaso y sirva.",
+                    "Complete con la soda.",
+                    "Decore con la guarnición."
+                ],
+            }
+        ];
+
+        let currentIndex = 0;
+
+        // 2. Generar el Índice del Menú Lateral
+        function buildMenuIndex() {
+            const sidebar = document.getElementById('sidebarIndex');
+            sidebar.innerHTML = '';
+
+            const categories = [...new Set(cocktailData.map(item => item.category))];
+
+            categories.forEach(category => {
+                const group = document.createElement('div');
+                group.className = 'category-group';
+
+                const title = document.createElement('div');
+                title.className = 'category-title';
+                title.innerText = category;
+                group.appendChild(title);
+
+                cocktailData.forEach((cocktail, index) => {
+                    if (cocktail.category === category) {
+                        const item = document.createElement('div');
+                        item.className = 'cocktail-item';
+                        item.innerText = cocktail.name;
+                        item.setAttribute('data-index', index);
+
+                        item.addEventListener('click', (e) => {
+                            cardContainer.classList.remove('is-flipped');
+                            setTimeout(() => {
+                                currentIndex = index;
+                                renderCard(currentIndex);
+                            }, 150);
+                        });
+
+                        group.appendChild(item);
+                    }
+                });
+
+                sidebar.appendChild(group);
+            });
+        }
+
+        // 3. Renderizador Dinámico de la Tarjeta
+        function renderCard(index) {
+            const data = cocktailData[index];
+            const frontContainer = document.getElementById('cardFront');
+            const backContainer = document.getElementById('cardBack');
+            const sidebar = document.getElementById('sidebarIndex');
+
+            // Asignar variable CSS dinámicamente para que la use el scrollbar en el CSS superior
+            document.documentElement.style.setProperty('--theme-color', data.themeColor);
+
+            sidebar.style.borderColor = data.themeColor;
+            frontContainer.style.borderColor = data.themeColor;
+            backContainer.style.borderColor = data.themeColor;
+
+            // Render Frente
+            frontContainer.innerHTML = `
+                <div class="card-header" style="color: ${data.themeColor};">
+                    <span>${data.id}</span>
+                    <span>${data.category}</span>
+                </div>
+                <div class="title-bar-row">
+                    <h2>${data.name}</h2>
+                    <div class="flavor-bar-container">
+                        <div class="flavor-bar-labels">
+                            <span>Dulce</span>
+                            <span>Amargo</span>
+                        </div>
+                        <div class="flavor-bar">
+                            <div class="flavor-bar-marker" id="flavorMarker" style="left: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flavor-profile"><strong style="color: ${data.themeColor};">Perfil de Sabor:</strong> ${data.flavorProfile}</div>
+                <div class="history"><strong>HISTORIA:</strong> ${data.history}</div>
+            `;
+
+            // Render Atrás
+            const ingredientsHTML = data.ingredients.map(ing => `<li>${ing.name} <span>${ing.qty}</span></li>`).join('');
+            const instructionsHTML = data.instructions.map(ins => `<li>${ins}</li>`).join('');
+
+            backContainer.innerHTML = `
+                <div class="card-header" style="color: ${data.themeColor};">
+                    <span>${data.id} </span>
+                    <span>${data.category}</span>
+                </div>
+                <div class="back-content">
+                    <div class="column">
+                        <h3 style="color: ${data.themeColor};">INGREDIENTES</h3>
+                        <ul>${ingredientsHTML}</ul>
+                    </div>
+                    <div class="column">
+                        <h3 style="color: ${data.themeColor};">INSTRUCCIONES</h3>
+                        <ol class="instructions-list">${instructionsHTML}</ol>
+                    </div>
+                </div>
+            `;
+
+            // Actualizar clase activa del menú
+            document.querySelectorAll('.cocktail-item').forEach(el => {
+                const itemIndex = parseInt(el.getAttribute('data-index'));
+                if (itemIndex === index) {
+                    el.className = 'cocktail-item active';
+                    el.style.backgroundColor = data.themeColor;
+                } else {
+                    el.className = 'cocktail-item';
+                    el.style.backgroundColor = 'transparent';
+                }
+            });
+
+            // Disparar la animación del marcador dorado con suavidad
+            setTimeout(() => {
+                const marker = document.getElementById('flavorMarker');
+                if (marker) marker.style.left = `${data.flavorScore}%`;
+            }, 60);
+        }
+
+        // 4. Animación Flip de la tarjeta
+        const cardContainer = document.getElementById('cardContainer');
+        cardContainer.addEventListener('click', () => {
+            cardContainer.classList.toggle('is-flipped');
+        });
+
+        // Inicializar la app
+        buildMenuIndex();
+        renderCard(currentIndex);
+    </script>
+</body>
+
+</html>

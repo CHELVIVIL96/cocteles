@@ -1,0 +1,37 @@
+[
+    {
+        "id": 59,
+        "category": "TEQUILA",
+        "name": "MARGARITA",
+        "flavor": "Agave, Citrus, Sweet, Orange, Refreshing.",
+        "history": "The Margarita is one of the world's most well-known cocktails...",
+        "sweetness": 60,
+        "image": "images/margarita.png",
+
+        "ingredients": [
+            "Tequila - 2oz (60ml)",
+            "Triple Sec - 1oz (30ml)",
+            "Lime Juice - .75oz",
+            "Simple Syrup - .25oz",
+            "Lime Wedge - Garnish"
+        ],
+
+        "instructions": [
+            "Place all ingredients into a shaker.",
+            "Add ice and shake for 8-10 seconds.",
+            "Salt rim of glass using lime wedge and salt.",
+            "Add ice to glass.",
+            "Strain cocktail into glass."
+        ],
+
+        "tools": [
+            "Shaker",
+            "Strainer",
+            "Jigger",
+            "Juicer",
+            "Margarita Glass"
+        ],
+
+        "fact": "Add fruit or jalapeños for flavored margaritas."
+    }
+]
